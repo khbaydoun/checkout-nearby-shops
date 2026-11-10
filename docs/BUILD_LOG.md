@@ -47,3 +47,28 @@ This is CI only. There is no CD (deployment) yet, because there is no place to d
 **Concepts:** continuous integration, GitHub Actions workflow, least privilege.
 
 **Try it:** `gh run list --limit 5` shows the runs; `gh run watch` follows the current one. Locally the same check is `./gradlew build`.
+
+---
+
+## Step 2 — Test agents (project setup, no module)
+
+**Files:** `.claude/agents/unit-tester.md`, `.claude/agents/integration-tester.md`
+
+Two Claude Code **subagents**: helpers with their own instructions and a limited set of tools. Each one is a Markdown file; the part between the `---` lines is the settings, the rest is the instructions.
+
+| Agent | Tests what | How |
+|---|---|---|
+| `unit-tester` | one class at a time | plain JUnit 5 + AssertJ + Mockito, no Spring context, runs in milliseconds |
+| `integration-tester` | an endpoint through all modules | `@SpringBootTest` + MockMvc + H2 demo data; only the courier clients may be replaced |
+
+- `description`: tells Claude when to hand work to this agent.
+- `tools`: what the agent may use (read, search, edit, run commands).
+- **Two modes:** by default an agent only *proposes* a list of test cases and writes no file. It writes tests only when told the cases are approved, so the owner still decides what is tested.
+- **Guard rails:** an agent never changes `src/main`, and never weakens or deletes a test to get a green build. A bug it finds is reported, not fixed.
+- The integration agent takes expected results from the agreed API contract (issue CHK-42); what the contract does not answer comes back as an open question.
+
+The agents run locally inside Claude Code. CI does not call them; CI just runs the tests they wrote.
+
+**Concepts:** Claude Code subagent, test pyramid (many fast unit tests, fewer slow integration tests), test double (mock / fake).
+
+**Try it:** in Claude Code, run `/agents` to see both, or ask "use the unit-tester agent to propose tests for `<class>`".
