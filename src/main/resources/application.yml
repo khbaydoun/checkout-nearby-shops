@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: checkout-nearby-shops
+  datasource:
+    url: jdbc:h2:mem:marketplace;DB_CLOSE_DELAY=-1
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop          # H2 demo only: Hibernate creates tables from the entities
+    defer-datasource-initialization: true   # run data.sql AFTER Hibernate created the tables
+  h2:
+    console:
+      enabled: true                  # browse the data at http://localhost:8080/h2-console
+  mvc:
+    problemdetails:
+      enabled: true
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
