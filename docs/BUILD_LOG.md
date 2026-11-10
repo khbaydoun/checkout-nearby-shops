@@ -28,3 +28,22 @@ A **modular monolith**: one Spring Boot app, one package per module. Like a real
 ---
 
 <!-- New steps go below this line -->
+
+## Step 1 — CI pipeline (project setup, no module)
+
+**Files:** `.github/workflows/ci.yml`
+
+The repo now lives on GitHub (`khbaydoun/checkout-nearby-shops`, public). A GitHub Actions workflow builds the project and runs the tests on a clean Linux machine, so "works on my machine" is checked by someone else's machine.
+
+- `on: push (main) / pull_request`: runs after every push to `main` and for every pull request.
+- `permissions: contents: read`: the job can read the code and nothing else (least privilege).
+- `concurrency ... cancel-in-progress`: a newer push cancels the older run of the same branch.
+- `setup-java` with Temurin 21: same Java version as the Gradle toolchain in `build.gradle.kts`.
+- `./gradlew build`: compiles, runs all tests and builds the jar; a failing test makes the run red.
+- `upload-artifact` with `if: failure()`: keeps the HTML test report only when a run fails.
+
+This is CI only. There is no CD (deployment) yet, because there is no place to deploy to.
+
+**Concepts:** continuous integration, GitHub Actions workflow, least privilege.
+
+**Try it:** `gh run list --limit 5` shows the runs; `gh run watch` follows the current one. Locally the same check is `./gradlew build`.
